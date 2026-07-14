@@ -1,7 +1,0 @@
-__pycache__/
-*.pyc
-.venv/
-venv/
-*.csv
-.DS_Store
-*.log
