@@ -10,6 +10,7 @@ locally with no GPU. The model is loaded once at construction and reused, so
 the slow load cost is paid a single time rather than per file.
 """
 
+from pathlib import Path
 from collections import namedtuple
 
 # Simple structured result. Keeps the return type explicit: downstream stages
@@ -40,6 +41,8 @@ class Transcriber:
 
 
 if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parents[1]
+    sample_audio = project_root / "samples" / "sample.wav"
     t = Transcriber()
-    result = t.transcribe("sample.wav")
+    result = t.transcribe(str(sample_audio))
     print(f"[{result.language}] {result.text}")

@@ -3,8 +3,6 @@ import time
 import csv
 from collections import Counter
 
-from deepface import DeepFace
-
 # Simulated video sequence (start, end, label).
 # Placeholder stimulus for the prototype - real calibrated content comes later.
 video_sequence = [
@@ -41,6 +39,8 @@ def run_session():
     Captures webcam frames, analyses emotion every 10th frame with DeepFace,
     tags each reading to the current scene, and returns the collected timeline.
     """
+    from deepface import DeepFace
+
     cap = cv2.VideoCapture(0)
     frame_count = 0
     dominant = ""

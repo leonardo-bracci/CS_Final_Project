@@ -1,6 +1,9 @@
 """Unit tests for the pure-logic functions of the emotion detector."""
 
-import emotion_detector as ed
+from src import emotion_detector as ed
+"""Unit tests for the pure-logic functions of the emotion detector."""
+
+from src import emotion_detector as ed
 
 
 class TestGetCurrentScene:
