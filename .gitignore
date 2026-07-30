@@ -218,3 +218,5 @@ __marimo__/
 .streamlit/secrets.toml
 logs/
 samples/session_recording.wav
+
+samples/session_q*.wav
