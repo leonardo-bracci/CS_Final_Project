@@ -210,8 +210,9 @@ def run_session():
     return timeline
 
 
-def save_timeline_csv(timeline, path="emotion_timeline.csv"):
+def save_timeline_csv(timeline, path="logs/emotion_timeline.csv"):
     """Write the timeline to CSV. Kept separate so callers choose whether to save."""
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["time_seconds", "scene", "emotion"])
