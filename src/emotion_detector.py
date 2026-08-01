@@ -13,7 +13,7 @@ PIP_BORDER_COLOR = (255, 255, 255)  # BGR
 PIP_BORDER_THICKNESS = 2
 SECONDS_PER_IMAGE = 3
 
-# True shows scene/emotion labels on screen - for development/debugging only.
+# True shows scene/emotion labels on screen.
 # Must be False for any real session or user study: showing the participant
 # which emotion a scene is meant to evoke (or what their face is currently
 # reading as) biases their reaction and defeats the point of the stimulus.

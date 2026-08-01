@@ -24,6 +24,7 @@ all, and nothing is recorded or logged for them.
 
 import json
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -113,6 +114,34 @@ def save_session_log(emotion_summary, qa_pairs, text_emotion, profile, generator
     return log_path
 
 
+def save_timing_log(stage_timings):
+    """Write one timestamped JSON file per session recording how long each
+    pipeline stage took, in seconds. Kept separate from save_session_log so
+    a timing run can be inspected on its own (e.g. for the Evaluation
+    chapter's end-to-end timing figure) without pulling in profile/chat
+    content."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).isoformat()
+    fixed_cost_stages = {k: v for k, v in stage_timings.items() if k != "chat_loop"}
+    entry = {
+        "timestamp": timestamp,
+        "stage_seconds": {k: round(v, 3) for k, v in stage_timings.items()},
+        "total_seconds_excl_chat": round(sum(fixed_cost_stages.values()), 3),
+        "total_seconds_incl_chat": round(sum(stage_timings.values()), 3),
+    }
+    path = LOGS_DIR / f"timing_{timestamp.replace(':', '-')}.json"
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(entry, f, indent=2)
+
+    print("\n=== Stage timing (seconds) ===")
+    for stage, seconds in entry["stage_seconds"].items():
+        print(f"{stage:<25} {seconds:>8.2f}")
+    print(f"{'TOTAL (excl. chat)':<25} {entry['total_seconds_excl_chat']:>8.2f}")
+    print(f"{'TOTAL (incl. chat)':<25} {entry['total_seconds_incl_chat']:>8.2f}")
+    print(f"Timing log saved to {path}")
+    return path
+
+
 def run_pipeline(use_sample=False, audio_path=DEFAULT_AUDIO_PATH, auto_consent=False):
     """Run the full guided session: consent, stimulus, three spoken
     questions, the four-stage analysis pipeline, profile generation,
@@ -134,8 +163,12 @@ def run_pipeline(use_sample=False, audio_path=DEFAULT_AUDIO_PATH, auto_consent=F
         print("Consent not given - ending session. Nothing was recorded.")
         return None
 
+    stage_timings = {}
+
     print("\n=== Stimulus: watch the sequence and let your face react naturally ===")
+    t0 = time.perf_counter()
     timeline = emotion_detector.run_session()
+    stage_timings["stimulus_and_vision"] = time.perf_counter() - t0
 
     if not timeline:
         print("No emotion data captured. Ending pipeline.")
@@ -148,28 +181,37 @@ def run_pipeline(use_sample=False, audio_path=DEFAULT_AUDIO_PATH, auto_consent=F
         print(f"{scene}: dominant emotion was {emotion} ({count} readings)")
 
     print("\n=== Spoken questions ===")
+    t0 = time.perf_counter()
     transcriber = Transcriber(model_size="tiny")
     qa_pairs = session.run_spoken_questions(
         transcriber, use_sample=use_sample, sample_audio_path=audio_path, mic_dir=MIC_DIR
     )
     combined_transcript = session.format_qa_transcript(qa_pairs)
+    stage_timings["spoken_questions_and_transcription"] = time.perf_counter() - t0
 
     print("\n=== Text-emotion analysis ===")
+    t0 = time.perf_counter()
     analyzer = SentimentAnalyzer()
     text_emotion = analyzer.analyze(combined_transcript)
+    stage_timings["text_emotion_analysis"] = time.perf_counter() - t0
     print(f"[{text_emotion.label} ({text_emotion.score})]")
 
     print("\n=== Psychological profile generation (Ollama) ===")
+    t0 = time.perf_counter()
     generator = ProfileGenerator(model_name="llama3.2")
     profile = generator.generate_profile(summary, combined_transcript, text_emotion)
+    stage_timings["profile_generation"] = time.perf_counter() - t0
     print(profile.summary)
     print(f"\nSeek-help flag: {profile.seek_help}")
 
+    t0 = time.perf_counter()
     run_chat_loop(generator)
+    stage_timings["chat_loop"] = time.perf_counter() - t0
 
     session.print_closing(profile)
 
     save_session_log(summary, qa_pairs, text_emotion, profile, generator, use_sample)
+    save_timing_log(stage_timings)
 
     return {
         "emotion_summary": summary,
