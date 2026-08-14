@@ -1,4 +1,3 @@
-work_plan.md
-export-ignore
-logs/
-export-ignore
+docs/work_plan.md export-ignore
+logs/ export-ignore
+
