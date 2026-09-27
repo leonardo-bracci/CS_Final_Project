@@ -6,7 +6,6 @@ Local-language-model component (language stage of the pipeline).
 Wraps Ollama behind a small class. Takes the outputs of Stages 1-3 (per-scene
 facial emotions, transcribed speech, and text-emotion classification) and:
   - generates an initial psychological reflection + wellbeing recommendations
-  - flags whether the response suggests professional help should be sought
   - supports a follow-up interactive chat, using the profile as context
 
 Ollama was chosen because it runs entirely locally - no cloud service, no data
@@ -19,6 +18,7 @@ forbids clinical/diagnostic language and instructs the model to recommend
 professional help when the observed patterns suggest significant distress.
 """
 
+import re
 from collections import namedtuple
 
 Profile = namedtuple("Profile", ["summary", "seek_help", "raw_text"])
@@ -28,16 +28,49 @@ You are NOT a therapist and must NEVER diagnose a medical or psychiatric
 condition. Your job is to reflect back the emotional patterns you observe
 (facial expression, spoken tone, and the words used) in a warm, non-clinical
 way, and suggest general wellbeing practices (e.g. journaling, breathing
-exercises, talking to someone they trust). If the observed patterns suggest
-significant or persistent distress, gently and clearly recommend the user
-speak to a mental health professional, and make clear this tool is not a
-substitute for professional care. Keep responses concise and conversational."""
+exercises, talking to someone they trust).
 
-# Crude keyword check for whether the model's reply recommended professional
-# help. Not a substitute for the model actually being instructed to do this
-# (see SYSTEM_PROMPT) - this is a secondary signal used to flag the session
-# for the UI layer (e.g. to surface a resources link).
-HELP_KEYWORDS = ["professional", "therapist", "counsellor", "counselor", "seek help", "seek support"]
+If the observed patterns suggest significant or persistent distress, gently
+and clearly recommend the user speak to a mental health professional, and
+make clear this tool is not a substitute for professional care.
+
+If the user expresses sadness, distress or thoughts of self-harm, never
+refuse to engage and never reply with a short refusal. Respond with warmth:
+acknowledge what they shared, tell them they deserve support, and encourage
+them to reach out to someone they trust or a mental health professional.
+Tell them that support contacts will be shown at the end of this session.
+
+Do not make claims about how this system stores or handles data beyond
+saying that everything is processed locally on this device.
+
+Never give phone numbers, hotline names or websites yourself.
+
+Keep responses concise and conversational."""
+
+# seek_help is no longer derived from the model's reply. It is assessed at
+# the end of the session from the user's own words and facial data - see
+# src/safety.py. generate_profile() leaves it as None until then.
+
+
+# Contact-detail filter. In testing, llama3.2 kept inventing hotline numbers
+# (including an outdated US number) even when the system prompt told it not
+# to, which are wrong or useless for a European user. Any line of a reply
+# containing a phone number, an SMS short code, a URL, or a placeholder like
+# "[insert ... number]" is removed in code before it is shown or stored. The
+# verified resources are printed by session.print_closing() instead.
+_CONTACT_PATTERN = re.compile(
+    r"(\+?\d[\d\s().-]{5,}\d)"          # phone numbers, e.g. 1-800-273-8255
+    r"|(\b\d{5,}\b)"                       # SMS short codes, e.g. 741741
+    r"|(https?://\S+|www\.\S+)"            # URLs
+    r"|(\[insert[^\]]*\])",                # template placeholders
+    re.IGNORECASE,
+)
+
+
+def strip_contact_details(text):
+    """Remove every line of text that contains contact details."""
+    kept = [line for line in text.splitlines() if not _CONTACT_PATTERN.search(line)]
+    return "\n".join(kept).strip()
 
 
 class ProfileGenerator:
@@ -77,22 +110,22 @@ class ProfileGenerator:
 
     def generate_profile(self, emotion_summary, transcript, text_emotion):
         """Generate the initial profile from Stage 1-3 outputs. Returns a
-        Profile with the reply text and a seek_help flag."""
+        Profile with the reply text; seek_help is None until the end-of-session
+        assessment in safety.py sets it."""
         prompt = self._build_prompt(emotion_summary, transcript, text_emotion)
         self.history.append({"role": "user", "content": prompt})
 
         response = self._ollama.chat(model=self.model_name, messages=self.history)
-        reply = response["message"]["content"]
+        reply = strip_contact_details(response["message"]["content"])
         self.history.append({"role": "assistant", "content": reply})
 
-        seek_help = any(kw in reply.lower() for kw in HELP_KEYWORDS)
-        return Profile(summary=reply, seek_help=seek_help, raw_text=reply)
+        return Profile(summary=reply, seek_help=None, raw_text=reply)
 
     def chat(self, user_message):
         """Continue the conversation, keeping full history for context."""
         self.history.append({"role": "user", "content": user_message})
         response = self._ollama.chat(model=self.model_name, messages=self.history)
-        reply = response["message"]["content"]
+        reply = strip_contact_details(response["message"]["content"])
         self.history.append({"role": "assistant", "content": reply})
         return reply
 
@@ -115,7 +148,6 @@ if __name__ == "__main__":
     generator = ProfileGenerator(model_name="llama3.2")
     profile = generator.generate_profile(sample_summary, sample_transcript, sample_text_emotion)
     print(profile.summary)
-    print("\nSeek-help flag:", profile.seek_help)
 
     # Try one follow-up turn to confirm the chat loop keeps context
     follow_up = generator.chat("What's one small thing I could try this week?")

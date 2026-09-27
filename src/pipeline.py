@@ -34,12 +34,14 @@ try:
     from src.transcriber import Transcriber
     from src.sentiment import SentimentAnalyzer
     from src.profile_generator import ProfileGenerator
+    from src.safety import assess_session
 except ImportError:
     import emotion_detector
     import session
     from transcriber import Transcriber
     from sentiment import SentimentAnalyzer
     from profile_generator import ProfileGenerator
+    from safety import assess_session
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -50,11 +52,22 @@ LOGS_DIR = PROJECT_ROOT / "logs"
 # Typing any of these (case-insensitive) ends the follow-up chat session.
 QUIT_WORDS = {"quit", "exit", "q", "bye", "stop"}
 
+# Used in --demo mode instead of the webcam stimulus: each scene gets the
+# emotion it is meant to evoke, so a demo run goes straight to the questions.
+DEMO_FACE_SUMMARY = {
+    "threatening scene": ("fear", 20),
+    "joyful scene": ("happy", 20),
+    "sad scene": ("sad", 20),
+    "relaxing scene": ("neutral", 20),
+}
+
 
 def run_chat_loop(generator):
     """Interactive follow-up conversation with the language model, reusing
     the same ProfileGenerator instance so context (the profile it just wrote)
-    carries into every reply."""
+    carries into every reply. Returns the user's own messages, which feed
+    the end-of-session seek-help assessment."""
+    user_messages = []
     print("\nYou can now ask questions about your profile.")
     print("Type 'quit' at any time to end the conversation.\n")
 
@@ -71,11 +84,15 @@ def run_chat_loop(generator):
             print("Ending session. Take care.")
             break
 
+        user_messages.append(user_message)
         reply = generator.chat(user_message)
         print(f"\nAssistant: {reply}\n")
 
+    return user_messages
 
-def save_session_log(emotion_summary, qa_pairs, text_emotion, profile, generator, use_sample):
+
+def save_session_log(emotion_summary, qa_pairs, text_emotion, profile, generator, use_sample,
+                     risk=None):
     """Write one timestamped JSON file per session, capturing consent, the
     three spoken Q&A pairs, every stage's output, and the full chat
     transcript (excluding the system prompt).
@@ -103,6 +120,7 @@ def save_session_log(emotion_summary, qa_pairs, text_emotion, profile, generator
         "spoken_qa": qa_pairs,
         "text_emotion": text_emotion._asdict(),
         "profile": profile._asdict(),
+        "seek_help_assessment": risk._asdict() if risk else None,
         "chat_history": chat_history,
     }
 
@@ -165,16 +183,19 @@ def run_pipeline(use_sample=False, audio_path=DEFAULT_AUDIO_PATH, auto_consent=F
 
     stage_timings = {}
 
-    print("\n=== Stimulus: watch the sequence and let your face react naturally ===")
-    t0 = time.perf_counter()
-    timeline = emotion_detector.run_session()
-    stage_timings["stimulus_and_vision"] = time.perf_counter() - t0
+    if use_sample:
+        summary = DEMO_FACE_SUMMARY
+    else:
+        print("\n=== Stimulus: watch the sequence and let your face react naturally ===")
+        t0 = time.perf_counter()
+        timeline = emotion_detector.run_session()
+        stage_timings["stimulus_and_vision"] = time.perf_counter() - t0
 
-    if not timeline:
-        print("No emotion data captured. Ending pipeline.")
-        return None
+        if not timeline:
+            print("No emotion data captured. Ending pipeline.")
+            return None
 
-    summary = emotion_detector.summarise_timeline(timeline)
+        summary = emotion_detector.summarise_timeline(timeline)
 
     print("\n=== Session summary ===")
     for scene, (emotion, count) in summary.items():
@@ -202,15 +223,22 @@ def run_pipeline(use_sample=False, audio_path=DEFAULT_AUDIO_PATH, auto_consent=F
     profile = generator.generate_profile(summary, combined_transcript, text_emotion)
     stage_timings["profile_generation"] = time.perf_counter() - t0
     print(profile.summary)
-    print(f"\nSeek-help flag: {profile.seek_help}")
 
     t0 = time.perf_counter()
-    run_chat_loop(generator)
+    chat_messages = run_chat_loop(generator)
     stage_timings["chat_loop"] = time.perf_counter() - t0
+
+    # End-of-session seek-help assessment: user's own words only (spoken
+    # answers + chat messages).
+    t0 = time.perf_counter()
+    user_texts = [pair["answer"] for pair in qa_pairs] + chat_messages
+    risk = assess_session(user_texts, analyzer, summary)
+    profile = profile._replace(seek_help=risk.flag)
+    stage_timings["seek_help_assessment"] = time.perf_counter() - t0
 
     session.print_closing(profile)
 
-    save_session_log(summary, qa_pairs, text_emotion, profile, generator, use_sample)
+    save_session_log(summary, qa_pairs, text_emotion, profile, generator, use_sample, risk)
     save_timing_log(stage_timings)
 
     return {

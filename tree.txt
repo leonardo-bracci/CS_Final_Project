@@ -1,84 +1,114 @@
-\.git
-\.pytest_cache
-\.venv
-\.vscode
-\docs
-\logs
-\midterm
-\reports
-\samples
-\scripts
-\src
-\tests
-\.gitignore
-\conftest.py
-\pytest.ini
-\README.md
-\requirements.txt
-\tree.txt
-\.pytest_cache\v
-\.pytest_cache\.gitignore
-\.pytest_cache\CACHEDIR.TAG
-\.pytest_cache\README.md
-\.pytest_cache\v\cache
-\.pytest_cache\v\cache\lastfailed
-\.pytest_cache\v\cache\nodeids
-\.vscode\settings.json
-\docs\work_plan.md
-\logs\emotion_benchmark_results.csv
-\logs\emotion_timeline.csv
-\logs\session_2026-07-29T20-52-44.931362+00-00.json
-\logs\session_2026-07-30T20-05-44.467897+00-00.json
-\logs\session_2026-07-30T20-45-17.510256+00-00.json
-\logs\session_2026-07-30T20-57-02.926442+00-00.json
-\logs\session_2026-07-31T14-44-38.421643+00-00.json
-\logs\session_2026-07-31T16-36-10.996467+00-00.json
-\logs\session_2026-08-01T07-39-25.882016+00-00.json
-\logs\session_2026-08-01T07-44-01.884775+00-00.json
-\logs\timing_2026-07-31T16-36-11.014004+00-00.json
-\logs\timing_2026-08-01T07-39-25.882016+00-00.json
-\logs\timing_2026-08-01T07-44-01.887016+00-00.json
-\midterm\feature_prototype.py
-\reports\(topic 1-5) Preliminary Report.pdf
-\reports\(topic 6) Prototype write up.pdf
-\reports\Draft_Report.docx
-\reports\FinalProjectTemplates 11921.pdf
-\samples\stimuli
-\samples\sample.wav
-\samples\session_q1.wav
-\samples\session_q2.wav
-\samples\session_q3.wav
-\samples\session_recording.wav
-\samples\stimuli\joyful
-\samples\stimuli\relaxing
-\samples\stimuli\sad
-\samples\stimuli\threatening
-\samples\stimuli\joyful\Dog 6.jpg
-\samples\stimuli\joyful\Fireworks 2.jpg
-\samples\stimuli\joyful\Rainbow 2.jpg
-\samples\stimuli\relaxing\Beach 1.jpg
-\samples\stimuli\relaxing\Grass 6.jpg
-\samples\stimuli\relaxing\Lake 2.jpg
-\samples\stimuli\sad\Depressed pose 1.jpg
-\samples\stimuli\sad\Sad face 6.jpg
-\samples\stimuli\sad\Sad face 9.jpg
-\samples\stimuli\threatening\Bloody knife 1.jpg
-\samples\stimuli\threatening\Fire 9.jpg
-\samples\stimuli\threatening\Shark 2.jpg
-\scripts\audio_benchmark.py
-\scripts\emotion_benchmark.py
-\scripts\ollama_benchmark.py
-\scripts\sentiment_benchmark.py
-\scripts\test_transcripts.py
-\src\__init__.py
-\src\emotion_detector.py
-\src\pipeline.py
-\src\profile_generator.py
-\src\recorder.py
-\src\sentiment.py
-\src\session.py
-\src\transcriber.py
-\tests\test_emotion_detector.py
-\tests\test_profile_generator.py
-\tests\test_sentiment.py
-\tests\test_session.py
+Folder PATH listing
+Volume serial number is 00000092 4A40:BCB7
+C:.
+|   .gitattributes
+|   .gitignore
+|   conftest.py
+|   pytest.ini
+|   README.md
+|   requirements.txt
+|   tree.txt
+|   
++---.pytest_cache
++---.venv
++---.vscode
++---docs
+|       work_plan.md
+|       
++---logs
+|       chat_robustness_results.csv
+|       emotion_benchmark_results.csv
+|       emotion_timeline.csv
+|       emotion_timeline.png
+|       session_2026-07-29T20-52-44.931362+00-00.json
+|       session_2026-07-30T20-05-44.467897+00-00.json
+|       session_2026-07-30T20-45-17.510256+00-00.json
+|       session_2026-07-30T20-57-02.926442+00-00.json
+|       session_2026-07-31T14-44-38.421643+00-00.json
+|       session_2026-07-31T16-36-10.996467+00-00.json
+|       session_2026-08-01T07-39-25.882016+00-00.json
+|       session_2026-08-01T07-44-01.884775+00-00.json
+|       session_2026-08-01T11-21-28.185620+00-00.json
+|       session_2026-08-07T09-38-36.631834+00-00.json
+|       session_2026-08-07T09-47-36.946972+00-00.json
+|       session_2026-08-07T09-51-41.728156+00-00.json
+|       session_2026-08-07T09-56-02.579221+00-00.json
+|       session_2026-08-07T11-26-30.035413+00-00.json
+|       timing_2026-07-31T16-36-11.014004+00-00.json
+|       timing_2026-08-01T07-39-25.882016+00-00.json
+|       timing_2026-08-01T07-44-01.887016+00-00.json
+|       timing_2026-08-01T11-21-28.231662+00-00.json
+|       timing_2026-08-07T09-38-36.635520+00-00.json
+|       timing_2026-08-07T09-47-36.946972+00-00.json
+|       timing_2026-08-07T09-51-41.728156+00-00.json
+|       timing_2026-08-07T09-56-02.579221+00-00.json
+|       timing_2026-08-07T11-26-30.035413+00-00.json
+|       
++---midterm
+|       feature_prototype.py
+|       
++---reports
+|       (topic 1-5) Preliminary Report.pdf
+|       (topic 6) Prototype write up.pdf
+|       Draft_Report word.odt
+|       Draft_Report.docx
+|       FinalProjectTemplates 11921.pdf
+|       pilot_study_pack.docx
+|       
++---samples
+|   |   sample.wav
+|   |   session_q1.wav
+|   |   session_q2.wav
+|   |   session_q3.wav
+|   |   session_recording.wav
+|   |   
+|   \---stimuli
+|       +---joyful
+|       |       Dog 6.jpg
+|       |       Fireworks 2.jpg
+|       |       Rainbow 2.jpg
+|       |       
+|       +---relaxing
+|       |       Beach 1.jpg
+|       |       Grass 6.jpg
+|       |       Lake 2.jpg
+|       |       
+|       +---sad
+|       |       Depressed pose 1.jpg
+|       |       Sad face 6.jpg
+|       |       Sad face 9.jpg
+|       |       
+|       \---threatening
+|               Bloody knife 1.jpg
+|               Fire 9.jpg
+|               Shark 2.jpg
+|               
++---scripts
+|   |   audio_benchmark.py
+|   |   chat_robustness_test.py
+|   |   emotion_benchmark.py
+|   |   ollama_benchmark.py
+|   |   plot_emotion_timeline.py
+|   |   sentiment_benchmark.py
+|   |   test_transcripts.py
+|   |   
+|   \---__pycache__
++---src
+|   |   emotion_detector.py
+|   |   pipeline.py
+|   |   profile_generator.py
+|   |   recorder.py
+|   |   sentiment.py
+|   |   session.py
+|   |   transcriber.py
+|   |   __init__.py
+|   |   
+|   \---__pycache__
++---tests
+|   |   test_emotion_detector.py
+|   |   test_profile_generator.py
+|   |   test_sentiment.py
+|   |   test_session.py
+|   |   
+|   \---__pycache__
+\---__pycache__

@@ -4,7 +4,7 @@ test_profile_generator.py
 Unit tests for profile_generator.py. The ollama package is mocked throughout,
 so these tests run offline and instantly, without needing Ollama installed or
 running, and without waiting on real model generation. What's under test is
-ProfileGenerator's own logic: prompt assembly, the seek_help keyword check,
+ProfileGenerator's own logic: prompt assembly, seek_help left unset by the model,
 and conversation-history handling - not the language model's actual output
 quality (that's covered separately by manual integration testing and
 ollama_benchmark.py, both of which use the real model).
@@ -67,34 +67,20 @@ class TestPromptAssembly:
 
 
 class TestSeekHelpFlag:
-    def test_seek_help_true_when_keyword_present(self):
+    def test_model_reply_no_longer_sets_seek_help(self):
+        """Regression test for the pilot finding: a reply mentioning
+        'professional' used to set seek_help=True in every session. The flag
+        is now assessed later from the user's own words (safety.py), so the
+        model's wording must not influence it."""
         with patch("ollama.chat") as mock_chat:
             mock_chat.return_value = fake_chat_response(
-                "It might help to speak to a professional if these feelings persist."
+                "This tool is not a substitute for professional care."
             )
-            generator = ProfileGenerator()
-            profile = generator.generate_profile(
-                {"sad scene": ("sad", 5)}, "I feel down", EmotionResult("sadness", 0.7)
-            )
-            assert profile.seek_help is True
-
-    def test_seek_help_false_when_no_keyword(self):
-        with patch("ollama.chat") as mock_chat:
-            mock_chat.return_value = fake_chat_response("Great to hear, keep up the good habits!")
             generator = ProfileGenerator()
             profile = generator.generate_profile(
                 {"joyful scene": ("happy", 8)}, "I feel great", EmotionResult("joy", 0.9)
             )
-            assert profile.seek_help is False
-
-    def test_seek_help_check_is_case_insensitive(self):
-        with patch("ollama.chat") as mock_chat:
-            mock_chat.return_value = fake_chat_response("Consider reaching out to a THERAPIST.")
-            generator = ProfileGenerator()
-            profile = generator.generate_profile(
-                {}, "text", EmotionResult("fear", 0.6)
-            )
-            assert profile.seek_help is True
+            assert profile.seek_help is None
 
 
 class TestChatHistory:
@@ -130,3 +116,28 @@ class TestChatHistory:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+class TestContactDetailFilter:
+    def test_phone_numbers_short_codes_urls_and_placeholders_are_removed(self):
+        from src.profile_generator import strip_contact_details
+        reply = (
+            "Please reach out.\n"
+            "1. Lifeline: 1-800-273-TALK (8255)\n"
+            "2. Crisis Text Line: Text HOME to 741741\n"
+            "* NAMI Helpline: [insert NAMI helpline number]\n"
+            "Visit https://example.org for more.\n"
+            "Try the 4-7-8 breathing exercise.\n"
+            "You deserve support."
+        )
+        assert strip_contact_details(reply) == (
+            "Please reach out.\nTry the 4-7-8 breathing exercise.\nYou deserve support."
+        )
+
+    def test_chat_reply_is_filtered_before_being_returned_and_stored(self):
+        with patch("ollama.chat") as mock_chat:
+            mock_chat.return_value = fake_chat_response("You matter.\nCall 1-800-273-8255 now.")
+            generator = ProfileGenerator()
+            reply = generator.chat("I feel sad")
+            assert reply == "You matter."
+            assert generator.history[-1]["content"] == "You matter."
