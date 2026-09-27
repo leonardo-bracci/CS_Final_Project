@@ -66,7 +66,6 @@ _CONTACT_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
-
 def strip_contact_details(text):
     """Remove every line of text that contains contact details."""
     kept = [line for line in text.splitlines() if not _CONTACT_PATTERN.search(line)]
