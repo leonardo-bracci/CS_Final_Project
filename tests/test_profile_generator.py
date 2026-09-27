@@ -1,13 +1,11 @@
 """
 test_profile_generator.py
---------------------------
-Unit tests for profile_generator.py. The ollama package is mocked throughout,
-so these tests run offline and instantly, without needing Ollama installed or
-running, and without waiting on real model generation. What's under test is
-ProfileGenerator's own logic: prompt assembly, seek_help left unset by the model,
-and conversation-history handling - not the language model's actual output
-quality (that's covered separately by manual integration testing and
-ollama_benchmark.py, both of which use the real model).
+-------------------------
+Unit tests for profile_generator.py. Ollama is mocked, so the tests run
+offline without a real model. They check prompt building, the contact-detail
+filter, chat history, and that the model's reply never sets seek_help.
+The quality of the model's actual replies is tested separately with the
+real model (scripts/ollama_benchmark.py, scripts/chat_robustness_test.py).
 """
 
 import sys

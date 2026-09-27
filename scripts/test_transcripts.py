@@ -1,21 +1,10 @@
 """
 test_transcripts.py
---------------------
-Fixed set of sample transcripts used to compare candidate text-emotion /
-sentiment models (j-hartmann/emotion-english-distilroberta-base,
-tabularisai/multilingual-sentiment-analysis, VADER) on identical input.
-
-Each entry has:
-  - text:     the sample sentence, written to sound like something a user
-              might say during the spoken-questions stage of a session
-  - expected: the emotion/sentiment label it was written to target, used
-              as a rough ground truth when scoring each model's output
-  - notes:    why this case is included (edge case, ambiguity, etc.)
-
-This file is deliberately small and hand-written (not real user data) so the
-same inputs can be run through every candidate model for a fair, repeatable
-comparison. Results of that comparison (label returned, confidence, latency,
-memory) should be logged separately per model - see sentiment_benchmark.py.
+-------------------
+The 10 hand-written test sentences used to benchmark the text-emotion models
+(j-hartmann, tabularisai, VADER). Each entry has the text, the expected label
+and a note on why the case is included. No real user data is used.
+See sentiment_benchmark.py.
 """
 
 TEST_TRANSCRIPTS = [

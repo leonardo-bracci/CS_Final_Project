@@ -1,21 +1,16 @@
 """
 sentiment.py
 ------------
-Text-emotion component (text stage of the pipeline).
+Text stage: wraps j-hartmann/emotion-english-distilroberta-base.
 
-Wraps j-hartmann/emotion-english-distilroberta-base behind a small class,
-following the same pattern as Transcriber: the model is loaded once at
-construction and reused, so the comparatively slow load cost is paid a single
-time rather than per call.
+The model is loaded once when the class is created and reused for every
+call, so the slow load happens only once.
 
-j-hartmann was chosen over VADER and tabularisai/multilingual-sentiment-analysis
-after benchmarking all three on a fixed set of test transcripts (see
-sentiment_benchmark.py / test_transcripts.py). It was the most accurate on the
-test set (6/10 vs VADER and tabularisai) and, crucially, shares the same
-seven-emotion label space as the DeepFace facial-emotion model (anger, disgust,
-fear, joy, neutral, sadness, surprise) - this lets facial and verbal emotion be
-compared directly downstream, e.g. "your face showed sadness while your words
-expressed joy", which a plain positive/negative/neutral model can't support.
+Chosen over VADER and tabularisai/multilingual-sentiment-analysis after
+benchmarking all three on the same 10 test transcripts (see
+scripts/sentiment_benchmark.py). It scored best (7/10) and uses the same
+seven emotions as DeepFace, so facial and verbal emotion can be compared,
+e.g. "your face showed sadness while your words expressed joy".
 """
 
 from collections import namedtuple

@@ -1,29 +1,17 @@
 """
 emotion_benchmark.py
----------------------
-Compares DeepFace (used in emotion_detector.py) against FER, an alternative
-facial-emotion library with an entirely separate emotion-classification model
-(a Keras CNN trained on FER2013, distinct from DeepFace's backend) and, by
-default, a different face detector (Haar Cascade rather than DeepFace's
-default detector).
+--------------------
+Compares DeepFace (used in emotion_detector.py) with FER, a separate
+facial-emotion library with its own model and face detector, on the same
+live webcam frames. It records per-frame latency and whether the two models
+agree, and checks how each behaves on a resting, neutral face.
 
-This is the missing compare-and-reject evidence for Stage 1: Stages 2-4 each
-benchmark the chosen model against a named alternative, but the vision stage
-so far has not. In particular this checks per-frame latency and, most
-importantly, behaviour on a resting/neutral face - DeepFace was found to
-default to "sad" or "fear" on an unperforming face (see Evaluation, Stage 1
-results), so the key question here is whether that's specific to DeepFace or
-common to frame-by-frame facial-emotion models generally.
+Usage (from the project root):
+    python scripts/emotion_benchmark.py [duration_seconds]
 
-Usage:
-    pip install fer tensorflow
-    python emotion_benchmark.py [duration_seconds]
-
-Runs both models on the same live frames for duration_seconds (default 15),
-sampling one frame per second, printing a side-by-side comparison and saving
-it to emotion_benchmark_results.csv. Sit still and keep a neutral/resting
-face for at least the first several seconds of the run - that's the
-condition this benchmark is specifically checking.
+Samples one frame per second for duration_seconds (default 15), prints a
+side-by-side comparison and saves it as emotion_benchmark_results.csv.
+Keep a neutral face for the first few seconds of the run.
 """
 
 import csv

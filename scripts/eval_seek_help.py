@@ -1,22 +1,15 @@
 """
 eval_seek_help.py
 -----------------
-Re-scores every saved session log with the redesigned seek-help rule
-(src/safety.py) and compares it with the flag the original method logged.
-
-The original method set seek_help by scanning the language model's own reply
-for words like "professional", and fired in every session. The new rule uses
-only the user's own words (three spoken answers + chat messages), scored by
-the j-hartmann text-emotion model. Because every log already stores those
-texts, the pilot participants' sessions can be re-assessed without new
-sessions: same people, same words, old rule vs new rule.
-
-Pilot sessions are the five non-demo runs from 7 August 2026.
+Re-scores every saved session log with the current seek-help rule
+(src/safety.py) and compares it with the flag recorded in the log by the
+original method, which checked the language model's reply for words like
+"professional". Pilot sessions are the five non-demo runs from 7 August 2026.
 
 Usage (from the project root):
     python scripts/eval_seek_help.py
 
-Output: a table in the terminal and logs/seek_help_eval.csv.
+Prints a comparison table and saves logs/seek_help_eval.csv.
 """
 
 import csv

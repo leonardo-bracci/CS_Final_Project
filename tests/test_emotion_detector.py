@@ -1,13 +1,8 @@
-"""Unit tests for the pure-logic functions of the emotion detector.
+"""Unit tests for the emotion detector's pure-logic functions.
 
-get_current_scene() and get_current_stimulus() are tested against a fixed,
-hand-built sequence passed explicitly, rather than the real module-level
-video_sequence (which is built from whatever images happen to be in
-samples/stimuli/<scene>/ on disk). This keeps the tests deterministic and
-independent of how many OASIS images are present locally, and means they
-still run correctly on a machine/CI environment with no stimuli folder at
-all - see build_video_sequence()'s own docstring in emotion_detector.py for
-the same reasoning.
+Scene and stimulus lookup are tested against a small hand-built sequence
+instead of the real images in samples/stimuli/, so the tests give the
+same result on any machine, even without the stimulus folder.
 """
 
 from pathlib import Path

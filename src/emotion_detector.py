@@ -1,8 +1,19 @@
+"""
+emotion_detector.py
+-------------------
+Vision stage: shows the OASIS stimulus sequence with the webcam inset and
+classifies facial emotion with DeepFace, tagging each reading with the
+scene on screen. summarise_timeline() reduces the readings to the
+dominant emotion per scene.
+"""
+
 import cv2
 import time
 import csv
 from pathlib import Path
 from collections import Counter
+
+
 
 # ---- Stimulus / display config ----
 CANVAS_SIZE = (960, 720)        # (width, height) of the stimulus window

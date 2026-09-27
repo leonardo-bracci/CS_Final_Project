@@ -1,21 +1,19 @@
 """
 profile_generator.py
----------------------
-Local-language-model component (language stage of the pipeline).
+--------------------
+Language stage: wraps a local Ollama model (llama3.2 by default).
 
-Wraps Ollama behind a small class. Takes the outputs of Stages 1-3 (per-scene
-facial emotions, transcribed speech, and text-emotion classification) and:
-  - generates an initial psychological reflection + wellbeing recommendations
-  - supports a follow-up interactive chat, using the profile as context
+Takes the per-scene facial emotions, the transcribed answers and the
+text-emotion result, and:
+  - generates a non-diagnostic reflection with wellbeing suggestions
+  - runs the follow-up chat, keeping the profile as context
 
-Ollama was chosen because it runs entirely locally - no cloud service, no data
-leaves the machine - which is the project's core privacy requirement (see
-Design chapter). It also supports small models (2-4GB) that run acceptably on
-CPU-only consumer hardware.
+Ollama runs entirely on the device, so no data leaves the machine, and
+small models (2-4 GB) run on CPU-only hardware.
 
-IMPORTANT: this component never diagnoses. The system prompt explicitly
-forbids clinical/diagnostic language and instructs the model to recommend
-professional help when the observed patterns suggest significant distress.
+The system prompt forbids diagnosis, refusals and invented contact details.
+Because small models don't follow this reliably, strip_contact_details()
+also removes any phone numbers, URLs or placeholders from every reply.
 """
 
 import re
@@ -47,10 +45,8 @@ Never give phone numbers, hotline names or websites yourself.
 
 Keep responses concise and conversational."""
 
-# seek_help is no longer derived from the model's reply. It is assessed at
-# the end of the session from the user's own words and facial data - see
-# src/safety.py. generate_profile() leaves it as None until then.
-
+# seek_help is not set by the model. It is assessed at the end of the
+# session from the user's own words - see src/safety.py.
 
 # Contact-detail filter. In testing, llama3.2 kept inventing hotline numbers
 # (including an outdated US number) even when the system prompt told it not

@@ -1,12 +1,10 @@
 """
 test_sentiment.py
-------------------
-Unit tests for sentiment.py. The transformers pipeline is mocked throughout,
-so these tests run offline and instantly, without downloading or loading the
-real j-hartmann model - only SentimentAnalyzer's own logic (the empty-input
-guard and the result-shaping in analyze()) is under test here, not the
-model's classification accuracy itself (that's covered separately by
-sentiment_benchmark.py, which does use the real model).
+-----------------
+Unit tests for sentiment.py. The transformers pipeline is mocked, so the
+tests run offline without the real model. They check the empty-input guard
+and how the model's output is turned into a result. Classification accuracy
+is tested separately with the real model (scripts/sentiment_benchmark.py).
 """
 
 import sys

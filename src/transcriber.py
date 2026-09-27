@@ -1,13 +1,12 @@
 """
 transcriber.py
 --------------
-Speech-to-text component (audio stage of the pipeline).
+Speech-to-text stage: wraps faster-whisper (tiny model, int8).
 
-Wraps faster-whisper behind a small class. faster-whisper is used over the
-original openai-whisper because it runs ~4x faster on CPU at the same accuracy,
-and int8 quantisation keeps memory low - both matter given the project runs
-locally with no GPU. The model is loaded once at construction and reused, so
-the slow load cost is paid a single time rather than per file.
+Chosen over openai-whisper after benchmarking both on the same audio:
+faster-whisper transcribed it correctly in about half the time, with lower
+memory use and no separate ffmpeg install. The model is loaded once and
+reused for every recording.
 """
 
 from pathlib import Path

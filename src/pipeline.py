@@ -3,23 +3,17 @@ pipeline.py
 -----------
 Orchestrator for the Emotional AI Mirror.
 
-Runs the guided session end to end: consent, stimulus, three spoken
-questions, processing, profile, and interactive follow-up chat, then a
-closing message with professional-help resources. By default the audio
-stage records live from the microphone; pass --demo to use the bundled
-samples/sample.wav instead (for all three questions), which is useful for
-offline demos, the Topic 9 peer review, or when a working microphone isn't
-available. --demo also auto-confirms consent, since it's intended for
-walkthroughs where a real person has already agreed to run the demo out of
-band; pass --auto-consent on its own to skip the consent prompt without
-switching to sample audio.
+Runs a full session: consent, stimulus, three spoken questions, text-emotion
+analysis, profile generation, follow-up chat, seek-help assessment and
+closing resources.
 
-Every run is logged to a timestamped JSON file in logs/, capturing consent,
-all three spoken Q&A pairs, and every stage's output plus the full
-follow-up chat transcript. This is what later becomes the Evaluation
-chapter's session data, rather than something copied by hand from the
-terminal after each run. Sessions where consent is withheld are not run at
-all, and nothing is recorded or logged for them.
+Options:
+  --demo          use samples/sample.wav for the answers, skip the webcam
+                  stimulus (fixed per-scene emotions) and auto-confirm consent
+  --auto-consent  skip the consent prompt only
+
+Each session is logged to logs/ as a timestamped JSON file, with a separate
+timing log. If consent is refused, nothing is recorded or logged.
 """
 
 import json
@@ -170,7 +164,8 @@ def run_pipeline(use_sample=False, audio_path=DEFAULT_AUDIO_PATH, auto_consent=F
     bundled sample.wav for all three questions instead - used for --demo
     mode and for testing without a working microphone. auto_consent=True
     (set automatically by --demo, or independently by --auto-consent) skips
-    the interactive consent prompt.
+    the interactive consent prompt. 
+    It also skips the webcam stimulus and uses the fixed DEMO_FACE_SUMMARY instead.
 
     Returns None if consent is withheld - no stage is run and nothing is
     recorded or logged for a declined session.

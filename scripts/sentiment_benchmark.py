@@ -1,24 +1,17 @@
 """
 sentiment_benchmark.py
------------------------
-Runs the same set of test transcripts through three candidate text-emotion /
-sentiment models and logs the results side by side, so a single command
-produces the comparison-table evidence for the report:
+----------------------
+Runs the test sentences in test_transcripts.py through three text-emotion
+models and prints the results side by side, with latency and memory:
 
-  1. j-hartmann/emotion-english-distilroberta-base   (Hugging Face, 7-way emotion)
-  2. tabularisai/multilingual-sentiment-analysis      (Hugging Face, 5-way sentiment)
-  3. VADER                                            (rule-based, no download)
+  1. j-hartmann/emotion-english-distilroberta-base  (7 emotions)
+  2. tabularisai/multilingual-sentiment-analysis     (5-level sentiment)
+  3. VADER                                           (rule-based)
 
-Usage:
-    python sentiment_benchmark.py
+Usage (from the project root):
+    python scripts/sentiment_benchmark.py
 
-Each model is optional - if the packages aren't installed, that model is
-skipped with a warning rather than crashing the whole run, so you can test
-VADER immediately and add the Hugging Face models once installed.
-
-Requires (install what you plan to test):
-    pip install vaderSentiment
-    pip install transformers torch
+A model whose package isn't installed is skipped with a warning.
 """
 
 import time

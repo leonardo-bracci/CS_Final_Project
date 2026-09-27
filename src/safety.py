@@ -3,43 +3,22 @@ safety.py
 ---------
 End-of-session seek-help assessment.
 
-Replaces the earlier approach, which set seek_help by scanning the language
-model's OWN reply for words such as "professional". Because the system prompt
-tells the model to state it is "not a substitute for professional care",
-almost every reply contained that word, and the flag fired in every logged
-session (13 of 13 readable logs, including all five pilot participants).
-The flag measured the model's instructions, not the user's state.
+Scores only the user's own words (the three spoken answers and every chat
+message) with the j-hartmann text-emotion model. The language model's
+replies are ignored, and the check runs in plain Python after the chat,
+so the model cannot set or override the flag.
 
-The new assessment:
-  - uses only the USER's own words: the three spoken answers plus every
-    chat message. The language model's replies are ignored, because they
-    reflect emotions back to the user and would inflate the score;
-  - reuses the existing text-emotion model (j-hartmann), so no new model
-    or keyword list is introduced;
-  - runs once, at the end of the session, in plain Python, so the language
-    model cannot set, suppress or contradict it;
-  - is explainable: the log records every message's score and the reason.
+The flag is set if:
+  - any single text is negative (sadness, fear, anger or disgust) with
+    confidence >= STRONG_CONFIDENCE_THRESHOLD, or
+  - at least MIN_DISTRESS_TEXTS texts are negative with confidence
+    >= TEXT_CONFIDENCE_THRESHOLD.
 
-Rule: flag when EITHER
-  (a) any single user text is classified as a negative emotion (sadness,
-      fear, anger or disgust) with confidence >= STRONG_CONFIDENCE_THRESHOLD,
-      so one clear disclosure is enough on its own; OR
-  (b) at least MIN_DISTRESS_TEXTS user texts are negative with confidence
-      >= TEXT_CONFIDENCE_THRESHOLD.
-A count is used rather than a share: an earlier share-based rule (>= 50% of
-texts) let neutral messages dilute clearly distressed ones and missed a
-session containing two strongly sad messages among six texts. No keyword
-list is used; detection depends on the emotion model's reading of the text,
-not on intent, which is a stated limitation.
+The facial data is logged but not used for the flag. Every text's score
+and the reason for the result are saved in the session log.
 
-The facial data is NOT used for the flag. An earlier version also required a
-negative face in at least half the stimulus scenes, but in testing a resting
-face read as neutral in every scene and blocked the flag for a user whose
-chat messages were clearly distressed. The negative-face ratio is still
-computed and logged as supporting information only.
-
-This is a signposting aid, not a risk or crisis assessment and not a
-diagnosis. Resources are shown at the end of every session regardless.
+This is a signposting aid, not a diagnosis or crisis assessment. Support
+resources are shown at the end of every session regardless of the flag.
 """
 
 from collections import namedtuple

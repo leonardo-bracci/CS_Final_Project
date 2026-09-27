@@ -1,17 +1,13 @@
 """
 ollama_benchmark.py
---------------------
-Compares llama3.2 against one alternative local model (qwen2.5:3b) on a
-sample emotion summary, timing time-to-first-token and total generation time.
+-------------------
+Compares llama3.2 with qwen2.5:3b on the same sample emotion summary,
+measuring time to first token and total generation time.
 
-Usage:
-    ollama pull qwen2.5:3b        (or: ollama pull phi3:mini)
-    pip install ollama
-    python ollama_benchmark.py
-
-This mirrors the structure of sentiment_benchmark.py: run the same fixed
-input through each candidate, log latency, and print a comparison table that
-can be dropped straight into Table 3 of the Evaluation chapter.
+Usage (from the project root):
+    ollama pull llama3.2
+    ollama pull qwen2.5:3b
+    python scripts/ollama_benchmark.py
 """
 
 import time

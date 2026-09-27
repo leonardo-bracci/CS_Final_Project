@@ -1,29 +1,21 @@
 """
 chat_robustness_test.py
-------------------------
-Structured robustness test for Stage 4's follow-up chat (ProfileGenerator.chat()).
+-----------------------
+Sends 10 varied and ambiguous follow-up messages through the chat of both
+candidate models (llama3.2 and qwen2.5:3b), starting from the same profile,
+and saves every reply for manual rating.
 
-Sends a fixed set of varied and ambiguous follow-up messages through the same
-profile context on both candidate models (llama3.2, qwen2.5:3b), and saves
-every reply to CSV for manual classification. This turns the two erratic-
-response incidents already documented in Evaluation (Stage 4 results and
-Session logging) into a systematic finding rather than an anecdote.
-
-Usage:
+Usage (from the project root):
+    ollama pull llama3.2
     ollama pull qwen2.5:3b
-    pip install ollama
-    python chat_robustness_test.py
+    python scripts/chat_robustness_test.py
 
-Output:
-    logs/chat_robustness_results.csv - one row per (model, message) pair,
-    with the full reply text plus empty columns for manual tagging.
-
-After running, open the CSV and fill in the "flag" column for each row:
-    ok            - relevant, on-topic, appropriate reply
-    off_topic     - reply ignores or misreads the message's actual content
-    inconsistent  - reply contradicts the profile or an earlier chat turn
-    bad_refusal   - reply refuses/deflects when the message did not warrant it
-Then compute a simple per-model count of each flag for the Evaluation table.
+Output: logs/chat_robustness_results.csv, one row per model and message.
+Rate each reply in the "flag" column:
+    ok            relevant and appropriate
+    off_topic     ignores or misreads the message
+    inconsistent  contradicts the profile or an earlier reply
+    bad_refusal   refuses when the message did not warrant it
 """
 
 import csv

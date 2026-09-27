@@ -1,25 +1,15 @@
 """
 audio_benchmark.py
--------------------
-Compares faster-whisper (used in transcriber.py) against the original
-openai-whisper on the same audio file, timing model load, transcription, and
-peak memory use, and comparing the resulting text.
+------------------
+Compares faster-whisper (used in transcriber.py) with the original
+openai-whisper on the same audio file: model load time, transcription time,
+peak memory and the transcribed text.
 
-This also verifies the claim made in the Literature Review (that faster-
-whisper runs roughly four times faster than openai-whisper at equivalent
-accuracy) rather than just citing it.
+Usage (from the project root):
+    python scripts/audio_benchmark.py [path/to/audio.wav]
 
-Usage:
-    pip install openai-whisper
-    python audio_benchmark.py path/to/audio.wav
-
-If no path is given, defaults to samples/sample.wav. Both models auto-download
-their weights on first run - no manual model files or zip archives needed.
-
-Memory is measured with tracemalloc, started and stopped around each model's
-load+transcribe individually (not across the whole script), so the two
-figures are isolated per model rather than one combined peak - unlike the
-Stage 3 sentiment benchmark, where both models were measured together.
+Uses samples/sample.wav by default. Model weights download automatically
+on first run. Memory is measured separately for each model with tracemalloc.
 """
 
 import sys

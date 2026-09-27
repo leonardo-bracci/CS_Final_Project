@@ -1,20 +1,14 @@
 """
 plot_emotion_timeline.py
--------------------------
-Plots logs/emotion_timeline.csv as a figure for the report: detected emotion
-over time, with the four stimulus scenes shaded behind the readings so the
-per-scene dominant emotion (and any misclassification) is visible at a glance.
+------------------------
+Plots the detected facial emotion over one stimulus session, with the four
+scenes shaded behind, so misclassifications are easy to see.
 
-This is the visual counterpart to the Stage 1 results reported in Evaluation:
-the prose describes the resting-face and direction-inconsistent
-misclassification findings, and this figure shows them directly.
-
-Usage:
-    pip install matplotlib
+Usage (from the project root):
     python scripts/plot_emotion_timeline.py [path/to/emotion_timeline.csv]
 
-Defaults to logs/emotion_timeline.csv. Saves the figure to
-logs/emotion_timeline.png at 150 DPI, ready to drop into the report.
+Reads logs/emotion_timeline.csv by default and saves
+logs/emotion_timeline.png.
 """
 
 import csv

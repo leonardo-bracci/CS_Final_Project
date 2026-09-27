@@ -1,12 +1,10 @@
 """
 test_session.py
-----------------
-Unit tests for session.py. record_audio and input() are mocked throughout,
-so these tests run offline and instantly, without a real microphone or a
-person typing at a prompt. What's under test is session.py's own logic -
-the consent gate, question/answer collection, transcript formatting, and
-closing-message content - not Transcriber's or recorder's behaviour, which
-are covered separately.
+---------------
+Unit tests for session.py. The microphone and keyboard input are mocked,
+so the tests run offline with no one at the keyboard. They check the consent
+gate, question and answer collection, transcript formatting and the closing
+message.
 """
 
 import sys

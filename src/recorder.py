@@ -1,17 +1,14 @@
 """
 recorder.py
 -----------
-Live microphone capture (replaces the bundled sample.wav for real sessions).
+Live microphone capture for the spoken questions.
 
-Wraps sounddevice behind a small function-based interface, following the same
-lazy-import pattern as the other stages: sounddevice is only imported inside
-record_audio(), so this module can be imported by the pipeline without the
-dependency installed unless a live recording is actually requested.
+sounddevice is imported inside record_audio(), so the module can be
+imported without it installed (e.g. in --demo mode or in tests).
 
-Recording stops when the user presses Enter, rather than after a fixed
-duration - spoken answers vary in length, and a fixed timer would either cut
-people off or leave dead air, both of which would show up as noise in the
-downstream transcription and sentiment stages.
+Recording stops when the user presses Enter instead of after a fixed time,
+because answers vary in length: a timer would either cut people off or
+record silence.
 """
 
 from pathlib import Path

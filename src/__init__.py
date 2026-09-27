@@ -1,1 +1,1 @@
-"""Project source package.""""""Source package for the CS final project."""
+"""Source package for the Emotional AI Mirror."""
